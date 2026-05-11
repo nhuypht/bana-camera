@@ -180,43 +180,48 @@
     setInterval(updateClock, 1000);
 
     // Xử lý chụp ảnh
-    function takePhoto() {
+   function takePhoto() {
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
 
-        // Set kích thước canvas bằng kích thước thật của video
+        // 1. Thiết lập kích thước canvas theo video
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
 
-        // Vẽ ảnh từ camera
+        // 2. Vẽ ảnh từ camera lên canvas
         ctx.drawImage(video, 0, 0);
 
-        // Vẽ Watermark (tọa độ tính theo tỉ lệ ảnh thật)
-        const fontSize = Math.round(canvas.width * 0.04); // Font size linh hoạt theo độ phân giải
+        // 3. Chèn mã Watermark (Ngày giờ/Địa điểm)
+        const fontSize = Math.round(canvas.width * 0.04);
         ctx.shadowColor = "rgba(0,0,0,0.8)";
         ctx.shadowBlur = 10;
         ctx.fillStyle = "#ffb400";
         
-        // Vẽ địa điểm
         ctx.font = `bold ${fontSize * 0.7}px Arial`;
         ctx.fillText("📍 SUN WORLD BA NA HILLS", 40, canvas.height - (fontSize * 2.5));
         
-        // Vẽ thời gian
         ctx.font = `bold ${fontSize}px monospace`;
         ctx.fillText(displayTime.innerText, 40, canvas.height - fontSize);
 
-        // Hi ứng nháy màn hình khi chụp
+        // 4. Hiệu ứng nháy màn hình
         video.style.opacity = "0.5";
         setTimeout(() => video.style.opacity = "1", 100);
 
-        // Tải ảnh về máy
+        // 5. Tự động tải xuống (Tạo tên file theo thời gian thực để tránh trùng lặp)
+        const timestamp = new Date().getTime();
         const link = document.createElement('a');
-        link.download = `BanaHills_${Date.now()}.png`;
+        link.download = `BanaHills_${timestamp}.png`;
         link.href = canvas.toDataURL('image/png');
+        
+        // Kích hoạt lệnh tải
+        document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
 
-        // Hiện thông báo
+        // Hiện thông báo nhỏ trên màn hình web
+        const toast = document.getElementById('toast');
         toast.style.display = "block";
+        toast.innerText = "Đang lưu ảnh...";
         setTimeout(() => toast.style.display = "none", 2000);
     }
 
