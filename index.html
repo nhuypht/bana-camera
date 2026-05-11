@@ -174,7 +174,7 @@
         .time-text { font-size: 22px; font-weight: 600; font-family: monospace; }
 
         /* Bảng điều khiển phía dưới */
-        .bottom-bar {
+        /* .bottom-bar {
             height: 140px;
             background: rgba(0,0,0,0.9);
             display: flex;
@@ -182,8 +182,22 @@
             align-items: center;
             justify-content: space-evenly;
             padding-bottom: env(safe-area-inset-bottom);
-        }
+        } */
+        /* Bảng điều khiển phía dưới - Đã nâng lên 10% */
+.bottom-bar {
+    height: 160px; /* Tăng nhẹ chiều cao tổng thể */
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Thay đổi từ evenly sang flex-start để đẩy lên */
+    padding-top: 15px;           /* Khoảng cách phía trên */
+    padding-bottom: calc(env(safe-area-inset-bottom) + 30px); /* Nâng lên cao hơn 10% */
+    gap: 15px;                   /* Khoảng cách giữa ô chỉnh giờ và nút chụp */
+}
 
+
+        
         .time-picker-wrapper {
             color: #ccc;
             font-size: 14px;
