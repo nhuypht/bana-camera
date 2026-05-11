@@ -118,7 +118,7 @@
     <video id="video" autoplay playsinline></video>
     
     <div id="watermark">
-        <div class="loc-text">📍 Sun World Ba Na Hills</div>
+        <div class="loc-text">📍 Sun World Ba Na Hills, Đà Nẵng</div>
         <div class="time-text" id="display-time">09/05/2026 16:55:00</div>
     </div>
 </div>
@@ -161,8 +161,26 @@
     }
 
     // Cập nhật đồng hồ hiển thị
+    // function updateClock() {
+    //     const now = new Date();
+    //     const d = String(now.getDate()).padStart(2, '0');
+    //     const m = String(now.getMonth() + 1).padStart(2, '0');
+    //     const y = now.getFullYear();
+        
+    //     const seconds = String(now.getSeconds()).padStart(2, '0');
+    //     const customTime = timeInput.value; // Lấy giờ từ ô input
+
+    //     displayTime.innerText = `${d}/${m}/${y} ${customTime}:${seconds}`;
+    // }
+
+    // Cập nhật đồng hồ hiển thị (Có thêm Thứ)
     function updateClock() {
         const now = new Date();
+        
+        // Tạo mảng danh sách các ngày trong tuần bằng tiếng Việt
+        const days = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
+        const dayName = days[now.getDay()]; // Lấy Thứ hiện tại
+        
         const d = String(now.getDate()).padStart(2, '0');
         const m = String(now.getMonth() + 1).padStart(2, '0');
         const y = now.getFullYear();
@@ -170,7 +188,8 @@
         const seconds = String(now.getSeconds()).padStart(2, '0');
         const customTime = timeInput.value; // Lấy giờ từ ô input
 
-        displayTime.innerText = `${d}/${m}/${y} ${customTime}:${seconds}`;
+        // Ghép Thứ vào chuỗi thời gian
+        displayTime.innerText = `${dayName}, ${d}/${m}/${y} ${customTime}:${seconds}`;
     }
 
     setInterval(updateClock, 1000);
