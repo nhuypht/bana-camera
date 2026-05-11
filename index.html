@@ -2,190 +2,224 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bà Nà Hills Camera</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bana Hills Camera Pro</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: Arial, sans-serif; }
-        
-        /* Khung hiển thị Camera chiếm toàn bộ màn hình */
-        #camera-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-        }
-        video {
-            width: 100%;
-            height: 80%;
-            object-fit: cover;
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            margin: 0; padding: 0; 
+            background: #000; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            height: 100vh; width: 100vw;
+            overflow: hidden;
         }
 
-        /* Watermark thu nhỏ (Cũ) */
-        .watermark {
+        #viewport {
             position: absolute;
-            bottom: 150px;
+            top: 0; left: 0; width: 100%; height: 80%;
+            background: #1a1a1a; z-index: 1;
+        }
+        video { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Watermark thu nhỏ 1/2 */
+        #watermark-container {
+            position: absolute;
+            bottom: 20px;
             left: 20px;
             color: #ffffff;
-            font-size: 12px; /* Thu nhỏ còn 1/2 */
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
             pointer-events: none;
             z-index: 10;
-        }
-        .time { 
-            display: block;       /* Chuyển span thành dạng khối */
-            margin-bottom: 10px;  /* Cách dòng bên dưới chính xác 10px */
-            font-size: 14px; 
-            font-weight: bold; 
-        } 
-        .location { 
-            display: block;       /* Chuyển span thành dạng khối */
-            font-size: 10px; 
+            transform: scale(0.5); 
+            transform-origin: bottom left; 
         }
 
-        /* Logo mới ở góc phải */
+        .wm-main { display: flex; align-items: center; margin-bottom: 10px; } /* Khoảng cách 10px như yêu cầu */
+        .wm-time { font-size: 45px; line-height: 1; letter-spacing: -1px; }
+        .wm-divider {
+            width: 3px; height: 55px;
+            background-color: #FFC107;
+            margin: 0 15px;
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        .wm-date-group { display: flex; flex-direction: column; justify-content: center; }
+        .wm-date, .wm-day { font-size: 18px; opacity: 0.95; }
+        .wm-date { margin-bottom: 4px; }
+
+        /* Cập nhật địa điểm mới */
+        .wm-location { font-size: 20px; opacity: 0.95; display: block; }
+/* Đưa phần chọn giờ lên đầu màn hình */
+        .time-picker-wrapper {
+            position: absolute;
+            top: 80px; /* Cách viền trên của màn hình 40px (tránh tai thỏ/camera đục lỗ) */
+            left: 50%;
+            transform: translateX(-50%); /* Căn giữa chính xác */
+            background: rgba(0,0,0,0.6);
+            padding: 8px 20px; border-radius: 25px;
+            color: #fff; font-size: 14px; display: flex; align-items: center; gap: 10px;
+            z-index: 100; /* Đảm bảo luôn nổi trên camera */
+        }
         #logo-container {
             position: absolute;
-            bottom: 150px;
+            bottom: 20px;
             right: 20px;
-            width: 20%; /* 20% độ rộng của ảnh */
+            width: 20vw;
             height: auto;
             z-index: 10;
             pointer-events: none;
         }
-        #logo-container img {
-            width: 100%;
-            height: auto;
+        #logo-container img { width: 100%; height: auto; }
+
+        .bottom-bar {
+            position: absolute;
+            bottom: 100px; /* Cách đáy 300px */
+            left: 0; width: 100%;
+            display: flex; flex-direction: column; align-items: center; gap: 15px;
+            z-index: 100; background: transparent;
         }
 
-        /* Nút chụp ảnh */
-        #shutter-button {
-            position: absolute;
-            bottom: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 70px;
-            height: 70px;
-            background: #ffffff;
-            border: 5px solid #cccccc;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 20;
+        .time-picker-wrapper {
+            background: rgba(0,0,0,0.6);
+            padding: 5px 15px; border-radius: 20px;
+            color: #fff; font-size: 10px; display: flex; align-items: center; gap: 10px;
+        }
+        input[type="time"] { background: transparent; border: none; color: #fff; font-size: 16px; outline: none; }
+
+        .shutter-btn {
+            width: 70px; height: 70px; background: rgba(255,255,255,0.8);
+            border-radius: 50%; border: 4px solid #fff;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .shutter-inner { width: 54px; height: 54px; background: #fff; border-radius: 50%; }
+
+        #toast {
+            position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.8); color: white; padding: 10px 20px;
+            border-radius: 20px; font-size: 14px; display: none; z-index: 200;
         }
     </style>
 </head>
 <body>
 
-<div id="camera-container">
+<div id="toast">Đang lưu ảnh...</div>
+
+<div id="viewport">
     <video id="video" autoplay playsinline></video>
     
-    <div class="watermark">
-        <div id="display-datetime">
-            <span class="time">--:--:-- --/--/--</span>
-            <span class="location">Sun World Ba Na Hills, Đà Nẵng</span>
+    <div id="watermark-container">
+        <div class="wm-main">
+            <div class="wm-time" id="display-time">--:--</div>
+            <div class="wm-divider"></div>
+            <div class="wm-date-group">
+                <div class="wm-date" id="display-date">-- Tháng --,----</div>
+                <div class="wm-day" id="display-day">-----</div>
+            </div>
         </div>
+        <div class="wm-location">SunWorld Bà Nà Hills,Đà Nẵng</div>
     </div>
 
     <div id="logo-container">
-        <img src="logo.svg" alt="Timemark Logo">
+        <img src="logo.svg" alt="Logo">
     </div>
-
-    <button id="shutter-button"></button>
+</div>
+   <div class="time-picker-wrapper">
+        Giờ: <input type="time" id="time-input" value="16:55">
+    </div>
+<div class="bottom-bar">
+ 
+    <div class="shutter-btn" onclick="takePhoto()">
+        <div class="shutter-inner"></div>
+    </div>
 </div>
 
 <canvas id="canvas" style="display:none;"></canvas>
 
 <script>
     const video = document.getElementById('video');
-    const displayDateTime = document.getElementById('display-datetime');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-
-    // 1. Khởi động Camera điện thoại
-    async function initCamera() {
-        try {
-            const constraints = { video: { facingMode: "environment" }, audio: false };
-            const stream = await navigator.mediaDevices.getUserMedia(constraints);
-            video.srcObject = stream;
-        } catch (err) {
-            alert("Lỗi: Không thể mở camera. Hãy đảm bảo bạn dùng HTTPS hoặc cho phép quyền Camera.");
-        }
-    }
-
-   // Tạo phút giả lập (16:55 - 16:59) MỘT LẦN duy nhất khi tải trang 
-    // để phút không bị nhảy lung tung mỗi giây
+    const timeInput = document.getElementById('time-input');
     const customMinutes = Math.floor(Math.random() * (59 - 55 + 1)) + 55;
 
-    // 2. Cập nhật đồng hồ (Có thêm Giây nhảy liên tục)
-    function updateClock() {
-        const now = new Date();
-        const dateStr = now.toLocaleDateString('vi-VN');
-        
-        // Lấy giây hiện tại của hệ thống (thêm '0' ở trước nếu giây < 10)
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        
-        // Ghép Giờ (16) : Phút (random) : Giây (thực tế)
-        const customTime = `16:${customMinutes}:${seconds}`;
-        
-        const location = "Sun World Ba Na Hills, Đà Nẵng";
-        
-        const timeText = `<span class="time">${dateStr} ${customTime}</span>`;
-        const locationText = `<span class="location">${location}</span>`;
-        
-        // Hiển thị ra màn hình
-        displayDateTime.innerHTML = `${timeText}<br>${locationText}`;
+    async function initCamera() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false });
+            video.srcObject = stream;
+        } catch (err) { alert("Lỗi truy cập Camera."); }
     }
 
-    // Cho đồng hồ cập nhật mỗi 1 giây (1000ms)
+    function updateClock() {
+        const now = new Date();
+        const days = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
+        const d = String(now.getDate()).padStart(2, '0');
+        const m = now.getMonth() + 1;
+        const y = now.getFullYear();
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        
+        document.getElementById('display-time').innerText = `${timeInput.value}:${seconds}`;
+        document.getElementById('display-date').innerText = `${d} Tháng ${m},${y}`;
+        document.getElementById('display-day').innerText = days[now.getDay()];
+    }
+
     setInterval(updateClock, 1000);
 
-  
-
-    // 3. Xử lý chụp ảnh và vẽ Canvas (Watermark + Logo)
     function takePhoto() {
-        // Tải ảnh video lên canvas
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
         ctx.drawImage(video, 0, 0);
 
-        // Biên độ vẽ trên canvas dựa trên kích thước ảnh
-        const margin = canvas.width * 0.02;
-
-        // Vẽ chữ Watermark thu nhỏ
-        ctx.font = "bold 20px Arial"; // Thu nhỏ còn 1/2
+        const cw = canvas.width; const ch = canvas.height;
+        const margin = Math.round(cw * 0.03);
+        const fNormal = Math.round(cw * 0.02);
+        const fTime = Math.round(cw * 0.06);
+        
+        ctx.shadowColor = "rgba(0,0,0,0.6)"; ctx.shadowBlur = 4; ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 1;
+        
+        // Vẽ địa điểm mới SunWorld Bà Nà Hills
         ctx.fillStyle = "#ffffff";
-        ctx.shadowColor = "rgba(0,0,0,0.8)";
-        ctx.shadowBlur = 4;
+        ctx.font = `${fNormal}px 'Segoe UI', Arial`;
+        const locText = "SunWorld Bà Nà Hills";
+        ctx.fillText(locText, margin, ch - margin);
         
-        // Vẽ Ngày/Giờ
-        const timeText = displayDateTime.querySelector('.time').innerText;
-        ctx.fillText(timeText, margin, canvas.height - margin * 3.5);
-        
-        // Vẽ Địa điểm
-        ctx.font = "12px Arial"; // Thu nhỏ còn 1/2
-        const locText = displayDateTime.querySelector('.location').innerText;
-        ctx.fillText(locText, margin, canvas.height - margin * 2.5);
+        // Vẽ Giờ
+        ctx.font = `bold ${fTime}px 'Segoe UI', Arial`;
+        const timeStr = document.getElementById('display-time').innerText;
+        const timeY = ch - margin - (fNormal * 2.0); // Tăng khoảng cách 10px tỷ lệ
+        ctx.fillText(timeStr, margin, timeY);
+        const timeWidth = ctx.measureText(timeStr).width;
 
-        // Vẽ Logo SVG
+        // Vẽ Vạch kẻ vàng
+        const divX = margin + timeWidth + (cw * 0.015);
+        const divH = fTime * 0.75;
+        const divY = timeY - divH + (fTime * 0.08);
+        ctx.fillStyle = "#FFC107";
+        ctx.fillRect(divX, divY, cw * 0.003, divH);
+
+        // Vẽ Ngày & Thứ
+        ctx.fillStyle = "#ffffff";
+        ctx.font = `${fNormal}px 'Segoe UI', Arial`;
+        const textX = divX + (cw * 0.015);
+        ctx.fillText(document.getElementById('display-date').innerText, textX, divY + divH * 0.35);
+        ctx.fillText(document.getElementById('display-day').innerText, textX, divY + divH * 0.9);
+
+        // Vẽ Logo (20% chiều rộng)
         const logoImg = new Image();
         logoImg.src = 'logo.svg';
         logoImg.onload = () => {
-            const logoWidth = canvas.width * 0.20; // 20% độ rộng của ảnh
-            const logoHeight = logoImg.height * (logoWidth / logoImg.width); // Giữ tỷ lệ
-            const logoX = canvas.width - logoWidth - margin;
-            const logoY = canvas.height - logoHeight - margin;
-            
-            ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
+            const logoWidth = cw * 0.20;
+            const logoHeight = logoImg.height * (logoWidth / logoImg.width);
+            ctx.shadowColor = "transparent";
+            ctx.drawImage(logoImg, cw - logoWidth - margin, ch - logoHeight - margin, logoWidth, logoHeight);
 
-            // Tải ảnh xuống
+            video.style.opacity = "0.5"; setTimeout(() => video.style.opacity = "1", 100);
             const link = document.createElement('a');
-            link.download = `BanaHills_${Date.now()}.png`;
+            link.download = `BaNa_${Date.now()}.png`;
             link.href = canvas.toDataURL('image/png');
             link.click();
+            const toast = document.getElementById('toast');
+            toast.style.display = "block"; setTimeout(() => toast.style.display = "none", 2000);
         };
     }
-
-    document.getElementById('shutter-button').addEventListener('click', takePhoto);
-
-    initCamera();
+    window.onload = initCamera;
 </script>
 </body>
 </html>
