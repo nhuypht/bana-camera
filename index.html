@@ -1,6 +1,3 @@
-
-
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -8,127 +5,127 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bana Hills Camera</title>
     <style>
-        /* Tối ưu cho màn hình điện thoại */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
-            margin: 0; padding: 0; padding-bottom:50px ;
+            margin: 0; padding: 0; 
             background: #000; 
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             height: 100vh; width: 100vw;
             overflow: hidden;
-            display: flex; flex-direction: column;
         }
 
-        /* Khung nhìn Camera */
-       /* 1. Khung nhìn Camera: Cho phép chiếm toàn bộ màn hình */
-#viewport {
-    position: absolute;
-    top: 0; 
-    left: 0;
-    width: 100%; 
-    height: 100%;
-    overflow: hidden;
-    background: #000;
-    z-index: 1;
-}
-
-/* 2. Bảng điều khiển: Ép cách đáy 300px và nổi lên trên Camera */
-.bottom-bar {
-    position: absolute;
-    bottom: 50px; /* Cách viền dưới chính xác 300px */
-    left: 0;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px; /* Khoảng cách giữa ô chỉnh giờ và nút chụp */
-    z-index: 100; /* Đảm bảo luôn nằm trên cùng */
-    background: transparent; /* Làm trong suốt để không che mất cảnh bên dưới */
-}
+        /* Khung nhìn Camera: Chiếm toàn bộ màn hình */
+        #viewport {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #1a1a1a; z-index: 1;
+        }
         video {
-            width: 100%; height: 100%;
-            object-fit: cover;
+            width: 100%; height: 100%; object-fit: cover;
         }
 
-        /* Lớp phủ thông tin (Watermark) */
+        /* Thiết kế Watermark giống hình chụp */
         #watermark {
             position: absolute;
-            bottom: 40px;
+            bottom: 60px; /* Cách đáy một khoảng vừa đủ */
             left: 20px;
-            color: #ffb400; /* Màu cam vàng vintage */
-            text-shadow: 2px 2px 3px rgba(0,0,0,0.7);
+            color: #ffffff;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
             pointer-events: none;
             z-index: 10;
         }
-        .loc-text { font-size: 16px; letter-spacing: 1px; margin-bottom: 2px; text-transform: uppercase; }
-        .time-text { font-size: 22px; font-weight: 600; font-family: monospace; }
 
-        
-
-        
-        .time-picker-wrapper {
-            color: #ccc;
-            font-size: 14px;
+        .wm-top {
             display: flex;
             align-items: center;
-            gap: 10px;
-        }
-        
-        input[type="time"] {
-            background: #333;
-            border: 1px solid #555;
-            color: #fff;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 16px;
+            margin-bottom: 5px;
         }
 
-        /* Nút chụp hình */
-        .shutter-btn {
-            width: 70px; height: 70px;
-            background: #fff;
-            border-radius: 50%;
-            border: 5px solid #444;
+        .wm-time {
+            font-size: 65px; /* Giờ rất to */
+            line-height: 1;
+            letter-spacing: -1px;
+        }
+
+        .wm-divider {
+            width: 3px;
+            height: 55px;
+            background-color: #FFC107; /* Vạch kẻ màu vàng */
+            margin: 0 15px;
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .wm-date-group {
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
-            active { background: #ccc; }
-        }
-        .shutter-inner {
-            width: 50px; height: 50px;
-            border-radius: 50%;
-            border: 2px solid #000;
         }
 
-        /* Thông báo */
+        .wm-date, .wm-day {
+            font-size: 18px;
+            opacity: 0.95;
+        }
+        .wm-date { margin-bottom: 4px; }
+
+        .wm-location {
+            font-size: 20px;
+            opacity: 0.95;
+        }
+
+        /* Bảng điều khiển: Nổi lên trên và cách đáy 300px */
+        .bottom-bar {
+            position: absolute;
+            bottom: 100px;
+            left: 0; width: 100%;
+            display: flex; flex-direction: column; align-items: center; gap: 15px;
+            z-index: 100; background: transparent;
+        }
+
+        .time-picker-wrapper {
+            background: rgba(0,0,0,0.6);
+            padding: 5px 15px; border-radius: 20px;
+            color: #fff; font-size: 14px; display: flex; align-items: center; gap: 10px;
+        }
+        input[type="time"] { background: transparent; border: none; color: #fff; font-size: 16px; outline: none;}
+
+        .shutter-btn {
+            width: 70px; height: 70px; background: rgba(255,255,255,0.8);
+            border-radius: 50%; border: 4px solid #fff;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .shutter-inner { width: 54px; height: 54px; background: #fff; border-radius: 50%; }
+
         #toast {
-            position: fixed; top: 20px; left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.8); color: white;
-            padding: 8px 20px; border-radius: 20px;
-            font-size: 13px; display: none; z-index: 100;
+            position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.8); color: white; padding: 10px 20px;
+            border-radius: 20px; font-size: 14px; display: none; z-index: 200;
         }
     </style>
 </head>
 <body>
 
-<div id="toast">Đã lưu ảnh vào máy</div>
+<div id="toast">Đang lưu ảnh...</div>
 
 <div id="viewport">
     <video id="video" autoplay playsinline></video>
     
     <div id="watermark">
-        <div class="loc-text">📍 Sun World Ba Na Hills, Đà Nẵng</div>
-        <div class="time-text" id="display-time">09/05/2026 16:55:00</div>
+        <div class="wm-top">
+            <div class="wm-time" id="display-time">16:47</div>
+            <div class="wm-divider"></div>
+            <div class="wm-date-group">
+                <div class="wm-date" id="display-date">09 Tháng 5,2026</div>
+                <div class="wm-day" id="display-day">Thứ Bảy</div>
+            </div>
+        </div>
+        <div class="wm-location">Bà Nà, Đà Nẵng</div>
     </div>
 </div>
 
 <div class="bottom-bar">
     <div class="time-picker-wrapper">
-        Chỉnh giờ: 
-        <input type="time" id="time-input" value="16:55">
+        Giờ: <input type="time" id="time-input" value="16:55">
     </div>
-
     <div class="shutter-btn" onclick="takePhoto()">
         <div class="shutter-inner"></div>
     </div>
@@ -138,110 +135,96 @@
 
 <script>
     const video = document.getElementById('video');
-    const displayTime = document.getElementById('display-time');
     const timeInput = document.getElementById('time-input');
-    const toast = document.getElementById('toast');
 
-    // Khởi động Camera điện thoại
     async function initCamera() {
         try {
-            const constraints = {
-                video: { 
-                    facingMode: "environment", // Dùng camera sau
-                    width: { ideal: 1920 },
-                    height: { ideal: 1080 }
-                },
-                audio: false
-            };
+            const constraints = { video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false };
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
             video.srcObject = stream;
-        } catch (err) {
-            alert("Lỗi: Không thể mở camera. Hãy đảm bảo bạn dùng HTTPS hoặc chạy trên Localhost.");
-        }
+        } catch (err) { alert("Vui lòng mở web bằng HTTPS hoặc cho phép quyền Camera."); }
     }
 
-    // Cập nhật đồng hồ hiển thị
-    // function updateClock() {
-    //     const now = new Date();
-    //     const d = String(now.getDate()).padStart(2, '0');
-    //     const m = String(now.getMonth() + 1).padStart(2, '0');
-    //     const y = now.getFullYear();
-        
-    //     const seconds = String(now.getSeconds()).padStart(2, '0');
-    //     const customTime = timeInput.value; // Lấy giờ từ ô input
-
-    //     displayTime.innerText = `${d}/${m}/${y} ${customTime}:${seconds}`;
-    // }
-
-    // Cập nhật đồng hồ hiển thị (Có thêm Thứ)
+    // Cập nhật thông tin lên màn hình theo thiết kế mới
     function updateClock() {
         const now = new Date();
-        
-        // Tạo mảng danh sách các ngày trong tuần bằng tiếng Việt
         const days = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
-        const dayName = days[now.getDay()]; // Lấy Thứ hiện tại
         
         const d = String(now.getDate()).padStart(2, '0');
-        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const m = now.getMonth() + 1; // Lấy tháng (không có số 0 ở đầu)
         const y = now.getFullYear();
         
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        const customTime = timeInput.value; // Lấy giờ từ ô input
-
-        // Ghép Thứ vào chuỗi thời gian
-        displayTime.innerText = `${dayName}, ${d}/${m}/${y} ${customTime}:${seconds}`;
+        document.getElementById('display-time').innerText = timeInput.value;
+        document.getElementById('display-date').innerText = `${d} Tháng ${m},${y}`;
+        document.getElementById('display-day').innerText = days[now.getDay()];
     }
 
     setInterval(updateClock, 1000);
 
-    // Xử lý chụp ảnh
-   function takePhoto() {
+    // Chụp ảnh và vẽ Canvas y hệt thiết kế
+    function takePhoto() {
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-
-        // 1. Thiết lập kích thước canvas theo video
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        // 2. Vẽ ảnh từ camera lên canvas
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        
+        // Vẽ Camera
         ctx.drawImage(video, 0, 0);
 
-        // 3. Chèn mã Watermark (Ngày giờ/Địa điểm)
-        const fontSize = Math.round(canvas.width * 0.04);
-        ctx.shadowColor = "rgba(0,0,0,0.8)";
-        ctx.shadowBlur = 10;
-        ctx.fillStyle = "#ffb400";
+        // Kích thước tỷ lệ theo độ phân giải ảnh
+        const cw = canvas.width; const ch = canvas.height;
+        const fTime = Math.round(cw * 0.12);   // Font Giờ
+        const fNormal = Math.round(cw * 0.035); // Font Ngày/Địa điểm
         
-        ctx.font = `bold ${fontSize * 0.7}px Arial`;
-        ctx.fillText("📍 SUN WORLD BA NA HILLS", 40, canvas.height - (fontSize * 2.5));
+        ctx.shadowColor = "rgba(0,0,0,0.6)"; ctx.shadowBlur = 6; ctx.shadowOffsetX = 2; ctx.shadowOffsetY = 2;
         
-        ctx.font = `bold ${fontSize}px monospace`;
-        ctx.fillText(displayTime.innerText, 40, canvas.height - fontSize);
+        const startX = Math.round(cw * 0.05);
+        const baseY = Math.round(ch * 0.9); // Tọa độ Y chuẩn
 
-        // 4. Hiệu ứng nháy màn hình
-        video.style.opacity = "0.2";
-        setTimeout(() => video.style.opacity = "1", 100);
+        // 1. Vẽ địa điểm (Dưới cùng)
+        ctx.fillStyle = "#ffffff";
+        ctx.font = `${fNormal}px 'Segoe UI', Arial`;
+        ctx.fillText("Bà Nà, Đà Nẵng", startX, baseY + fNormal * 1.5);
 
-        // 5. Tự động tải xuống (Tạo tên file theo thời gian thực để tránh trùng lặp)
+        // 2. Vẽ Giờ
+        ctx.font = `${fTime}px 'Segoe UI', Arial`;
+        const timeStr = document.getElementById('display-time').innerText;
+        ctx.fillText(timeStr, startX, baseY);
+        const timeWidth = ctx.measureText(timeStr).width;
+
+        // 3. Vẽ Vạch kẻ vàng
+        const divX = startX + timeWidth + (cw * 0.02);
+        const divH = fTime * 0.75;
+        const divY = baseY - divH + (fTime * 0.1);
+        ctx.fillStyle = "#FFC107";
+        ctx.fillRect(divX, divY, cw * 0.006, divH);
+
+        // 4. Vẽ Ngày & Thứ
+        ctx.fillStyle = "#ffffff";
+        ctx.font = `${fNormal}px 'Segoe UI', Arial`;
+        const textX = divX + (cw * 0.02);
+        
+        const dateStr = document.getElementById('display-date').innerText;
+        const dayStr = document.getElementById('display-day').innerText;
+        
+        ctx.fillText(dateStr, textX, divY + divH * 0.35);
+        ctx.fillText(dayStr, textX, divY + divH * 0.9);
+
+        // Hiệu ứng nháy
+        video.style.opacity = "0.5"; setTimeout(() => video.style.opacity = "1", 100);
+
+        // Tải ảnh
         const timestamp = new Date().getTime();
         const link = document.createElement('a');
-        link.download = `BanaHills_${timestamp}.png`;
+        link.download = `BaNa_${timestamp}.png`;
         link.href = canvas.toDataURL('image/png');
-        
-        // Kích hoạt lệnh tải
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
 
-        // Hiện thông báo nhỏ trên màn hình web
+        // Thông báo
         const toast = document.getElementById('toast');
-        toast.style.display = "block";
-        toast.innerText = "Đang lưu ảnh...";
-        setTimeout(() => toast.style.display = "none", 1000);
+        toast.style.display = "block"; setTimeout(() => toast.style.display = "none", 2000);
     }
 
     window.onload = initCamera;
 </script>
-
 </body>
 </html>
