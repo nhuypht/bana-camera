@@ -1,1 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="80" viewBox="0 0 200 80">
+  <rect width="200" height="80" fill="none" rx="10"/> 
+  
+  <text x="100" y="35" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#ffb142" text-anchor="middle">Timemark</text>
+  <text x="100" y="65" font-family="Arial, sans-serif" font-size="16" fill="#f1f2f6" text-anchor="middle">100% Chân thực</text>
+</svg>
 
