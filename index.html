@@ -1,0 +1,341 @@
+<!-- <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Timestamp Camera</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: Arial, sans-serif; }
+        
+        /* Khung hiển thị Camera */
+        #camera-container { position: relative; width: 100vw; height: 100vh; }
+        video { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Lớp phủ thông tin (Timestamp Overlay) */
+        #overlay {
+            position: absolute;
+            bottom: 30px;
+            left: 20px;
+            color: #ffaa00; /* Màu cam đặc trưng của máy ảnh */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            font-weight: bold;
+            pointer-events: none; /* Không cản trở việc click */
+        }
+        .location { font-size: 1.2rem; margin-bottom: 5px; }
+        .datetime { font-size: 1.5rem; }
+
+        /* Bảng điều khiển */
+        #controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            color: white;
+        }
+        input { margin-bottom: 5px; width: 100px; }
+        button { cursor: pointer; padding: 5px 10px; background: #2ecc71; border: none; color: white; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<div id="camera-container">
+    <video id="video" autoplay playsinline></video>
+    
+    <div id="overlay">
+        <div class="location" id="display-location">Sun World Ba Na Hills</div>
+        <div class="datetime" id="display-datetime">09/05/2026 16:55:00</div>
+    </div>
+</div>
+
+<div id="controls">
+    <div>
+        Giờ (16:55-16:59): 
+        <input type="time" id="time-input" value="16:55">
+    </div>
+    <button onclick="captureImage()">Chụp ảnh</button>
+</div>
+
+<canvas id="canvas" style="display:none;"></canvas>
+
+<script>
+    const video = document.getElementById('video');
+    const displayDateTime = document.getElementById('display-datetime');
+    const timeInput = document.getElementById('time-input');
+
+    // 1. Kích hoạt Camera
+    async function startCamera() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: "environment" }, // Ưu tiên camera sau
+                audio: false 
+            });
+            video.srcObject = stream;
+        } catch (err) {
+            alert("Không thể truy cập Camera: " + err);
+        }
+    }
+
+    // 2. Cập nhật thời gian hiển thị
+    function updateTimestamp() {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('vi-VN');
+        const selectedTime = timeInput.value;
+        
+        // Giả lập giây để trông như thật
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        
+        displayDateTime.innerText = `${dateStr} ${selectedTime}:${seconds}`;
+    }
+
+    // Cập nhật liên tục mỗi giây
+    setInterval(updateTimestamp, 1000);
+
+    // 3. Xử lý chụp và tải ảnh về
+    function captureImage() {
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        // Vẽ video lên canvas
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Vẽ lớp phủ văn bản lên canvas
+        context.font = "bold 40px Arial";
+        context.fillStyle = "#ffaa00";
+        context.shadowColor = "black";
+        context.shadowBlur = 7;
+        
+        const locText = document.getElementById('display-location').innerText;
+        const timeText = displayDateTime.innerText;
+
+        context.fillText(locText, 40, canvas.height - 100);
+        context.fillText(timeText, 40, canvas.height - 50);
+
+        // Tải ảnh
+        const link = document.createElement('a');
+        link.download = 'Banahill_Capture.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    }
+
+    startCamera();
+</script>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bana Hills Camera</title>
+    <style>
+        /* Tối ưu cho màn hình điện thoại */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            margin: 0; padding: 0; 
+            background: #000; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            height: 100vh; width: 100vw;
+            overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+
+        /* Khung nhìn Camera */
+        #viewport {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            background: #1a1a1a;
+        }
+        video {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+
+        /* Lớp phủ thông tin (Watermark) */
+        #watermark {
+            position: absolute;
+            bottom: 40px;
+            left: 20px;
+            color: #ffb400; /* Màu cam vàng vintage */
+            text-shadow: 2px 2px 3px rgba(0,0,0,0.7);
+            pointer-events: none;
+            z-index: 10;
+        }
+        .loc-text { font-size: 16px; letter-spacing: 1px; margin-bottom: 2px; text-transform: uppercase; }
+        .time-text { font-size: 22px; font-weight: 600; font-family: monospace; }
+
+        /* Bảng điều khiển phía dưới */
+        .bottom-bar {
+            height: 140px;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .time-picker-wrapper {
+            color: #ccc;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        input[type="time"] {
+            background: #333;
+            border: 1px solid #555;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        /* Nút chụp hình */
+        .shutter-btn {
+            width: 70px; height: 70px;
+            background: #fff;
+            border-radius: 50%;
+            border: 5px solid #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            active { background: #ccc; }
+        }
+        .shutter-inner {
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            border: 2px solid #000;
+        }
+
+        /* Thông báo */
+        #toast {
+            position: fixed; top: 20px; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8); color: white;
+            padding: 8px 20px; border-radius: 20px;
+            font-size: 13px; display: none; z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+<div id="toast">Đã lưu ảnh vào máy</div>
+
+<div id="viewport">
+    <video id="video" autoplay playsinline></video>
+    
+    <div id="watermark">
+        <div class="loc-text">📍 Sun World Ba Na Hills</div>
+        <div class="time-text" id="display-time">09/05/2026 16:55:00</div>
+    </div>
+</div>
+
+<div class="bottom-bar">
+    <div class="time-picker-wrapper">
+        Chỉnh giờ: 
+        <input type="time" id="time-input" value="16:55">
+    </div>
+
+    <div class="shutter-btn" onclick="takePhoto()">
+        <div class="shutter-inner"></div>
+    </div>
+</div>
+
+<canvas id="canvas" style="display:none;"></canvas>
+
+<script>
+    const video = document.getElementById('video');
+    const displayTime = document.getElementById('display-time');
+    const timeInput = document.getElementById('time-input');
+    const toast = document.getElementById('toast');
+
+    // Khởi động Camera điện thoại
+    async function initCamera() {
+        try {
+            const constraints = {
+                video: { 
+                    facingMode: "environment", // Dùng camera sau
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 }
+                },
+                audio: false
+            };
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            video.srcObject = stream;
+        } catch (err) {
+            alert("Lỗi: Không thể mở camera. Hãy đảm bảo bạn dùng HTTPS hoặc chạy trên Localhost.");
+        }
+    }
+
+    // Cập nhật đồng hồ hiển thị
+    function updateClock() {
+        const now = new Date();
+        const d = String(now.getDate()).padStart(2, '0');
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const y = now.getFullYear();
+        
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const customTime = timeInput.value; // Lấy giờ từ ô input
+
+        displayTime.innerText = `${d}/${m}/${y} ${customTime}:${seconds}`;
+    }
+
+    setInterval(updateClock, 1000);
+
+    // Xử lý chụp ảnh
+    function takePhoto() {
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set kích thước canvas bằng kích thước thật của video
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        // Vẽ ảnh từ camera
+        ctx.drawImage(video, 0, 0);
+
+        // Vẽ Watermark (tọa độ tính theo tỉ lệ ảnh thật)
+        const fontSize = Math.round(canvas.width * 0.04); // Font size linh hoạt theo độ phân giải
+        ctx.shadowColor = "rgba(0,0,0,0.8)";
+        ctx.shadowBlur = 10;
+        ctx.fillStyle = "#ffb400";
+        
+        // Vẽ địa điểm
+        ctx.font = `bold ${fontSize * 0.7}px Arial`;
+        ctx.fillText("📍 SUN WORLD BA NA HILLS", 40, canvas.height - (fontSize * 2.5));
+        
+        // Vẽ thời gian
+        ctx.font = `bold ${fontSize}px monospace`;
+        ctx.fillText(displayTime.innerText, 40, canvas.height - fontSize);
+
+        // Hi ứng nháy màn hình khi chụp
+        video.style.opacity = "0.5";
+        setTimeout(() => video.style.opacity = "1", 100);
+
+        // Tải ảnh về máy
+        const link = document.createElement('a');
+        link.download = `BanaHills_${Date.now()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+
+        // Hiện thông báo
+        toast.style.display = "block";
+        setTimeout(() => toast.style.display = "none", 2000);
+    }
+
+    window.onload = initCamera;
+</script>
+
+</body>
+</html>
