@@ -20,13 +20,31 @@
         }
 
         /* Khung nhìn Camera */
-        #viewport {
-            flex: 1;
-            position: relative;
-            width: 100%;
-            overflow: hidden;
-            background: #1a1a1a;
-        }
+       /* 1. Khung nhìn Camera: Cho phép chiếm toàn bộ màn hình */
+#viewport {
+    position: absolute;
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+    z-index: 1;
+}
+
+/* 2. Bảng điều khiển: Ép cách đáy 300px và nổi lên trên Camera */
+.bottom-bar {
+    position: absolute;
+    bottom: 300px; /* Cách viền dưới chính xác 300px */
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px; /* Khoảng cách giữa ô chỉnh giờ và nút chụp */
+    z-index: 100; /* Đảm bảo luôn nằm trên cùng */
+    background: transparent; /* Làm trong suốt để không che mất cảnh bên dưới */
+}
         video {
             width: 100%; height: 100%;
             object-fit: cover;
@@ -45,29 +63,7 @@
         .loc-text { font-size: 16px; letter-spacing: 1px; margin-bottom: 2px; text-transform: uppercase; }
         .time-text { font-size: 22px; font-weight: 600; font-family: monospace; }
 
-        /* Bảng điều khiển phía dưới */
-        /* .bottom-bar {
-            height: 140px;
-            background: rgba(0,0,0,0.9);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-evenly;
-            padding-bottom: env(safe-area-inset-bottom);
-        } */
-        /* Bảng điều khiển phía dưới - Đã nâng lên 10% */
-.bottom-bar {
-    height: 160px; /* Tăng nhẹ chiều cao tổng thể */
-    background: rgba(0,0,0,0.9);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start; /* Thay đổi từ evenly sang flex-start để đẩy lên */
-    padding-top: 15px;           /* Khoảng cách phía trên */
-    padding-bottom: 300px); /* Nâng lên cao hơn 10% */
-    gap: 15px;                   /* Khoảng cách giữa ô chỉnh giờ và nút chụp */
-}
-
+        
 
         
         .time-picker-wrapper {
